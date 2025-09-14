@@ -1,7 +1,8 @@
 #include "lexer.h"
 #include <stdlib.h>
+#include <string.h>
 
-struct lexer *lexer_new(const char *src) 
+struct lexer *lexer_new(const char *src)
 {
         struct lexer *lexer = malloc(sizeof(struct lexer));
         if (!lexer)
@@ -49,4 +50,19 @@ close_fp:
 free_lexer:
         free(lexer);
         return NULL;
+}
+
+void lexer_insert_token(struct lexer *lx, enum tok_type type, const char *val)
+{
+        // reminder: free every token.val since token now owns a val copy
+        struct token new = token_new(type, strdup(val));
+
+        lx->tok_count++;
+        lx->tokens = realloc(lx->tokens, sizeof(struct token) * lx->tok_count);
+        if (!lx->tokens) {
+                fprintf(stderr, "couldn't reallocate token list\n");
+                exit(EXIT_FAILURE);
+        }
+
+        lx->tokens[lx->tok_count - 1] = new;
 }
