@@ -4,8 +4,8 @@
 
 struct lexer *lexer_new(const char *src)
 {
-        struct lexer *lexer = malloc(sizeof(struct lexer));
-        if (!lexer)
+        struct lexer *lx = malloc(sizeof(struct lexer));
+        if (!lx)
                 return NULL;
 
         FILE *fp = fopen(src, "rb");
@@ -18,13 +18,13 @@ struct lexer *lexer_new(const char *src)
         size_t file_size = ftell(fp);
         rewind(fp);
 
-        lexer->start_char = malloc(file_size + 1);
-        if (lexer->start_char == NULL) {
+        lx->start_char = malloc(file_size + 1);
+        if (lx->start_char == NULL) {
                 fprintf(stderr, "cannot allocate memory for file contents\n");
                 goto close_fp;
         }
 
-        size_t bytes_read = fread(lexer->start_char, 1, file_size, fp);
+        size_t bytes_read = fread(lx->start_char, 1, file_size, fp);
         if (bytes_read < file_size) {
                 if (ferror(fp)) {
                         fprintf(stderr, "error while reading file\n");
@@ -32,23 +32,23 @@ struct lexer *lexer_new(const char *src)
                 }
         }
 
-        lexer->start_char[file_size] = '\0';
-        lexer->cur_char = lexer->start_char;
-        lexer->tokens = NULL;
-        lexer->tok_count = 0;
+        lx->start_char[file_size] = '\0';
+        lx->cur_char = lx->start_char;
+        lx->tokens = NULL;
+        lx->tok_count = 0;
 
         fclose(fp);
 
-        return lexer;
+        return lx;
 
 free_buf:
-        free(lexer->start_char);
+        free(lx->start_char);
 
 close_fp:
         fclose(fp);
 
 free_lexer:
-        free(lexer);
+        free(lx);
         return NULL;
 }
 
