@@ -4,7 +4,7 @@
 
 struct set *set_create()
 {
-        struct set *s = malloc(sizeof(s));
+        struct set *s = malloc(sizeof(struct set));
         if (!s) {
                 fprintf(stderr, "cannot create set\n");
                 return NULL;
@@ -21,7 +21,7 @@ void set_insert(struct set *s, const char *e)
         }
 
         hash_table_insert(s->elements, e, 1);
-        printf("element '%s' inserted\n", e);
+        // printf("element '%s' inserted\n", e);
 }
 
 void set_remove(struct set *s, const char *e)

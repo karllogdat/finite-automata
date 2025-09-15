@@ -109,7 +109,7 @@ free_lexer:
 void lexer_insert_token(struct lexer *lx, enum tok_type type, const char *val)
 {
         // reminder: free every token.val since token now owns a val copy
-        struct token new = token_new(type, strdup(val));
+        struct token new = token_new(type, val);
 
         lx->tok_count++;
         lx->tokens = realloc(lx->tokens, sizeof(struct token) * lx->tok_count);

@@ -61,7 +61,7 @@ int hash_table_contains(struct hash_table *ht, const char *key)
         while (current) {
                 if (strcmp(current->key, key) == 0)
                         return index;
-                current->next = current;
+                current = current->next;
         }
 
         return -1;
