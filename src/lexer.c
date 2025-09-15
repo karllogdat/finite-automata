@@ -2,6 +2,40 @@
 #include <stdlib.h>
 #include <string.h>
 
+void token_print(struct token *tok)
+{
+        switch (tok->type) {
+                case TOK_IDENT:
+                        printf("type: %s, val: %s\n", "IDENTIFIER", tok->value);
+                        break;
+
+                case TOK_MINUS:
+                        printf("type: %s, val: %s\n", "MINUS", tok->value);
+                        break;
+
+                case TOK_GT:
+                        printf(
+                            "type: %s, val: %s\n", "GREATER THAN", tok->value);
+                        break;
+
+                case TOK_COLON:
+                        printf("type: %s, val: %s\n", "COLON", tok->value);
+                        break;
+
+                case TOK_WSPACE:
+                        printf("type: %s\n", "WHITESPACE", tok->value);
+                        break;
+
+                case TOK_NEWLINE:
+                        printf("type: %s\n", "NEWLINE", tok->value);
+                        break;
+
+                default:
+                        printf("unkown token\n");
+                        break;
+        }
+}
+
 struct lexer *lexer_new(const char *src)
 {
         struct lexer *lx = malloc(sizeof(struct lexer));
@@ -65,4 +99,10 @@ void lexer_insert_token(struct lexer *lx, enum tok_type type, const char *val)
         }
 
         lx->tokens[lx->tok_count - 1] = new;
+}
+
+void lexer_print_tokens(struct lexer *lx)
+{
+        for (int i = 0; i < lx->tok_count; i++)
+                token_print(&lx->tokens[i]);
 }
