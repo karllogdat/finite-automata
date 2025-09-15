@@ -26,28 +26,28 @@ void token_print(struct token *tok)
 {
         switch (tok->type) {
                 case TOK_IDENT:
-                        printf("type: %s, val: %s\n", "IDENTIFIER", tok->value);
+                        printf("TOK_IDENT(%s)", tok->value);
                         break;
 
                 case TOK_MINUS:
-                        printf("type: %s, val: %s\n", "MINUS", tok->value);
+                        printf("TOK_MINUS");
                         break;
 
                 case TOK_GT:
-                        printf(
-                            "type: %s, val: %s\n", "GREATER THAN", tok->value);
+                        printf("TOK_GT");
                         break;
 
                 case TOK_COLON:
-                        printf("type: %s, val: %s\n", "COLON", tok->value);
+                        printf("TOK_COLON");
                         break;
 
                 case TOK_WSPACE:
-                        printf("type: %s\n", "WHITESPACE", tok->value);
+                        // reminder: can comment out if too much
+                        // printf("TOK_WSPACE");
                         break;
 
                 case TOK_NEWLINE:
-                        printf("type: %s\n", "NEWLINE", tok->value);
+                        printf("TOK_NEWLINE\n");
                         break;
 
                 default:
@@ -201,6 +201,8 @@ void lexer_tokenize(struct lexer *lx)
 
 void lexer_print_tokens(struct lexer *lx)
 {
-        for (int i = 0; i < lx->tok_count; i++)
+        for (int i = 0; i < lx->tok_count; i++) {
                 token_print(&lx->tokens[i]);
+                printf(" ");
+        }
 }
