@@ -1,6 +1,26 @@
 #include "lexer.h"
+#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+
+struct token token_new(enum tok_type type, const char *val)
+{
+        struct token tok;
+        tok.type = type;
+
+        if (val) {
+                tok.value = strdup(val);
+                if (!tok.value) {
+                        fprintf(stderr,
+                                "cannot allocate memory for token value\n");
+                        exit(EXIT_FAILURE);
+                }
+        } else {
+                tok.value = NULL;
+        }
+
+        return tok;
+}
 
 void token_print(struct token *tok)
 {
@@ -99,6 +119,84 @@ void lexer_insert_token(struct lexer *lx, enum tok_type type, const char *val)
         }
 
         lx->tokens[lx->tok_count - 1] = new;
+}
+
+void lexer_tokenize(struct lexer *lx)
+{
+        while (*lx->cur_char != '\0') {
+                char cur = *lx->cur_char;
+                enum tok_type type;
+                char *val = NULL;
+
+                switch (cur) {
+                        case ' ':
+                        case '\t':
+                                type = TOK_WSPACE;
+                                val = " ";
+                                break;
+
+                        // intentional unbreaked case to handle windows
+                        // `\r\n` quirk
+                        case '\r':
+                                if (lx->cur_char[1] == '\n') {
+                                        lx->cur_char++;
+                                }
+
+                        case '\n':
+                                type = TOK_NEWLINE;
+                                val = "\\n";
+                                break;
+
+                        case ':':
+                                type = TOK_COLON;
+                                val = ":";
+                                break;
+
+                        case '-':
+                                type = TOK_MINUS;
+                                val = "-";
+                                break;
+
+                        case '>':
+                                type = TOK_GT;
+                                val = ">";
+                                break;
+
+                        default:
+                                if (isalnum(cur)) {
+                                        const char *start = lx->cur_char;
+                                        while (isalnum(lx->cur_char[1])) {
+                                                lx->cur_char++;
+                                        }
+
+                                        size_t len = lx->cur_char - start + 1;
+                                        char *tmp = malloc(len + 1);
+                                        if (!tmp) {
+                                                fprintf(stderr,
+                                                        "malloc failed\n");
+                                                exit(EXIT_FAILURE);
+                                        }
+
+                                        strncpy(tmp, start, len);
+                                        tmp[len] = '\0';
+
+                                        type = TOK_IDENT;
+                                        val = tmp;
+
+                                        lexer_insert_token(lx, type, val);
+                                        free(tmp);
+
+                                        lx->cur_char++;
+                                        continue;
+                                } else {
+                                        lx->cur_char++;
+                                        continue;
+                                }
+                }
+
+                lexer_insert_token(lx, type, val);
+                lx->cur_char++;
+        }
 }
 
 void lexer_print_tokens(struct lexer *lx)
