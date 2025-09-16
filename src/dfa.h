@@ -1,26 +1,21 @@
 #ifndef DFA_H
 #define DFA_H
 
+#include <stdlib.h>
 #include "set.h"
 
-struct dfa {
-        struct set *states;
-        struct set *alphabet;
-        struct transition *trans_func;
-        int trans_count;
-        const char *start_state;
-        struct set *accept_states;
-};
-
 struct transition {
-        const char *state;
-        const char *symb;
-        const char *out;
+        char *from;
+        char *to;
+        char *symb;
 };
 
-struct dfa *dfa_create(const char *src);
+struct dfa {
+        struct transition *transitions;
+        size_t transition_count;
 
-void dfa_simulate(struct dfa *dfa);
-const char *dfa_next_trans(const char *state, const char *symb);
+        char *start_state;
+        struct set accept_states;
+};
 
 #endif
