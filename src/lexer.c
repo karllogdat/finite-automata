@@ -131,9 +131,8 @@ void lexer_tokenize(struct lexer *lx)
                 switch (cur) {
                         case ' ':
                         case '\t':
-                                type = TOK_WSPACE;
-                                val = " ";
-                                break;
+                                lx->cur_char++;
+                                continue;
 
                         // intentional unbreaked case to handle windows
                         // `\r\n` quirk
