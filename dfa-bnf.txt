@@ -1,0 +1,15 @@
+Deterministic Finite Automata grammar
+
+=====
+
+Start          -> TransitionList StartState EOF
+
+TransitionList -> Transition ( NEWLINE Transition )* NEWLINE?
+
+Transition     -> IDENT "->" IDENT ":" IDENT
+
+StartState     -> IDENT NEWLINE FinalStates NEWLINE?
+
+FinalStates    -> IDENT ( " " IDENT )*
+
+IDENT          -> /[A-Za-z0-9]+/    // token definition
