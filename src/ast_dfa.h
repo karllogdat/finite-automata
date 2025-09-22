@@ -9,7 +9,7 @@ struct ast_transition {
         char *symb;
 };
 
-struct adt_dfa {
+struct ast_dfa {
         struct ast_transition **transitions;
         size_t transition_count;
 

@@ -1,5 +1,7 @@
+#include "ast_dfa.h"
 #include "hash_table.h"
 #include "lexer.h"
+#include "parser.h"
 #include "set.h"
 #include <stdio.h>
 
@@ -16,4 +18,7 @@ int main(int argc, const char **argv)
 
         lexer_tokenize(lexer);
         lexer_print_tokens(lexer);
+
+        struct parser *p = parser_new(lexer);
+        struct ast_dfa *ad = parse(p);
 }
