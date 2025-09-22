@@ -15,6 +15,16 @@ static struct token *advance(struct parser *p)
         return &p->tokens[p->pos++];
 }
 
+static struct token *current(struct parser *p)
+{
+        if (p->pos >= p->tok_count) {
+                fprintf(stderr, "expected token, found end of file\n");
+                exit(EXIT_FAILURE);
+        }
+
+        return &p->tokens[p->pos];
+}
+
 static struct token *peek(struct parser *p)
 {
         if (p->pos + 1 >= p->tok_count) {
@@ -53,7 +63,7 @@ struct ast_transition *parse_transition(struct parser *p)
         struct token *curr = advance(p);
 
         if (curr->type != TOK_IDENT) {
-                fprintf(stderr, "expected identifier\n");
+                fprintf(stderr, "expected identifier as from state\n");
                 exit(EXIT_FAILURE);
         }
         t->from = curr->value;
@@ -69,7 +79,7 @@ struct ast_transition *parse_transition(struct parser *p)
 
         curr = advance(p);
         if (curr->type != TOK_IDENT) {
-                fprintf(stderr, "expected identifier\n");
+                fprintf(stderr, "expected identifier as to state\n");
                 exit(EXIT_FAILURE);
         }
         t->to = curr->value;
@@ -81,7 +91,7 @@ struct ast_transition *parse_transition(struct parser *p)
 
         curr = advance(p);
         if (curr->type != TOK_IDENT) {
-                fprintf(stderr, "expected identifier\n");
+                fprintf(stderr, "expected identifier as symbol\n");
                 exit(EXIT_FAILURE);
         }
         t->symb = curr->value;
@@ -91,8 +101,7 @@ struct ast_transition *parse_transition(struct parser *p)
 
 void parse_transition_list(struct parser *p)
 {
-        while (peek(p)->type == TOK_IDENT &&
-               p->tokens[p->pos + 2].type == TOK_MINUS) {
+        while (current(p)->type == TOK_IDENT && peek(p)->type == TOK_MINUS) {
                 p->dfa->transitions =
                     realloc(p->dfa->transitions, p->dfa->transition_count + 1);
                 p->dfa->transitions[p->dfa->transition_count++] =
@@ -104,11 +113,14 @@ void parse_start_state(struct parser *p)
 {
         struct token *curr = advance(p);
         if (curr->type != TOK_IDENT) {
-                fprintf(stderr, "expected identifier\n");
+                fprintf(stderr, "expected identifier as start state\n");
                 exit(EXIT_FAILURE);
         }
-        if (advance(p)->type != TOK_NEWLINE) {
-                fprintf(stderr, "expected newline after identifier\n");
+        curr = advance(p);
+        if (curr->type != TOK_NEWLINE) {
+                fprintf(stderr,
+                        "expected newline after start state identifier '%s'\n",
+                        curr->value);
                 exit(EXIT_FAILURE);
         }
 
@@ -120,7 +132,8 @@ void parse_accept_states(struct parser *p)
         while (peek(p)->type != TOK_NEWLINE) {
                 struct token *curr = advance(p);
                 if (curr->type != TOK_IDENT) {
-                        fprintf(stderr, "expected identifier\n");
+                        fprintf(stderr,
+                                "expected identifier as an accept state\n");
                         exit(EXIT_FAILURE);
                 }
                 p->dfa->accept_states = realloc(p->dfa->accept_states,
