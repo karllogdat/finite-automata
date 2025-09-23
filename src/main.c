@@ -15,11 +15,12 @@ int main(int argc, const char **argv)
 
         struct lexer *lexer = lexer_new(argv[1]);
         // printf("File Contents:\n\n%s\n", lexer->start_char);
-
         lexer_tokenize(lexer);
-        lexer_print_tokens(lexer);
 
         struct parser *p = parser_new(lexer);
         struct ast_dfa *ad = parse(p);
+        for (int i = 0; i < p->tok_count; i++)
+                token_print(&p->tokens[i]);
+
         ast_dfa_print(ad);
 }

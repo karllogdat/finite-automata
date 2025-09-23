@@ -18,8 +18,7 @@ static struct token *advance(struct parser *p)
 static struct token *current(struct parser *p)
 {
         if (p->pos >= p->tok_count) {
-                fprintf(stderr, "expected token, found end of file\n");
-                exit(EXIT_FAILURE);
+                return NULL;
         }
 
         return &p->tokens[p->pos];
@@ -102,6 +101,10 @@ struct ast_transition *parse_transition(struct parser *p)
         }
         t->symb = curr->value;
 
+        printf("parsed transition\n\t");
+        printf("%s -(%s)-> %s", t->from, t->symb, t->to);
+        printf("\n");
+
         return t;
 }
 
@@ -135,12 +138,15 @@ void parse_start_state(struct parser *p)
                 exit(EXIT_FAILURE);
         }
 
+        printf("parsed start state\n\t");
+        token_print(ident);
+        printf("\n");
         p->dfa->start = ident->value;
 }
 
 void parse_accept_states(struct parser *p)
 {
-        while (peek(p) && peek(p)->type != TOK_NEWLINE) {
+        while (current(p)) {
                 struct token *curr = advance(p);
                 if (curr->type != TOK_IDENT) {
                         fprintf(stderr,
@@ -153,5 +159,9 @@ void parse_accept_states(struct parser *p)
                                 sizeof(*p->dfa->accept_states));
                 p->dfa->accept_states[p->dfa->accept_state_count++] =
                     curr->value;
+
+                printf("parsed accept state\n\t");
+                token_print(curr);
+                printf("\n");
         }
 }
