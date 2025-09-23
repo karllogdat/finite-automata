@@ -18,4 +18,6 @@ struct ast_dfa {
         size_t accept_state_count;
 };
 
+void ast_dfa_print(struct ast_dfa *dfa);
+
 #endif

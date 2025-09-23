@@ -44,6 +44,12 @@ struct parser *parser_new(struct lexer *lx)
         p->tok_count = lx->tok_count;
         p->pos = 0;
         p->dfa = malloc(sizeof(*p->dfa));
+        // since dfa is another struct
+        p->dfa->transitions = NULL;
+        p->dfa->transition_count = 0;
+        p->dfa->start = NULL;
+        p->dfa->accept_states = NULL;
+        p->dfa->accept_state_count = 0;
         return p;
 }
 
@@ -102,21 +108,26 @@ struct ast_transition *parse_transition(struct parser *p)
 void parse_transition_list(struct parser *p)
 {
         while (current(p)->type == TOK_IDENT && peek(p)->type == TOK_MINUS) {
-                p->dfa->transitions =
-                    realloc(p->dfa->transitions, p->dfa->transition_count + 1);
+                p->dfa->transitions = realloc(p->dfa->transitions,
+                                              (p->dfa->transition_count + 1) *
+                                                  sizeof(*p->dfa->transitions));
                 p->dfa->transitions[p->dfa->transition_count++] =
                     parse_transition(p);
+
+                // consume new line
+                advance(p);
         }
 }
 
 void parse_start_state(struct parser *p)
 {
-        struct token *curr = advance(p);
-        if (curr->type != TOK_IDENT) {
-                fprintf(stderr, "expected identifier as start state\n");
+        struct token *ident = advance(p);
+        if (ident->type != TOK_IDENT) {
+                fprintf(stderr, "expected identifier as start state, got:\n");
+                token_print(ident);
                 exit(EXIT_FAILURE);
         }
-        curr = advance(p);
+        struct token *curr = advance(p);
         if (curr->type != TOK_NEWLINE) {
                 fprintf(stderr,
                         "expected newline after start state identifier '%s'\n",
@@ -124,20 +135,22 @@ void parse_start_state(struct parser *p)
                 exit(EXIT_FAILURE);
         }
 
-        p->dfa->start = curr->value;
+        p->dfa->start = ident->value;
 }
 
 void parse_accept_states(struct parser *p)
 {
-        while (peek(p)->type != TOK_NEWLINE) {
+        while (peek(p) && peek(p)->type != TOK_NEWLINE) {
                 struct token *curr = advance(p);
                 if (curr->type != TOK_IDENT) {
                         fprintf(stderr,
                                 "expected identifier as an accept state\n");
                         exit(EXIT_FAILURE);
                 }
-                p->dfa->accept_states = realloc(p->dfa->accept_states,
-                                                p->dfa->accept_state_count + 1);
+                p->dfa->accept_states =
+                    realloc(p->dfa->accept_states,
+                            (p->dfa->accept_state_count + 1) *
+                                sizeof(*p->dfa->accept_states));
                 p->dfa->accept_states[p->dfa->accept_state_count++] =
                     curr->value;
         }

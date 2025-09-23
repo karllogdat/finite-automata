@@ -21,4 +21,5 @@ int main(int argc, const char **argv)
 
         struct parser *p = parser_new(lexer);
         struct ast_dfa *ad = parse(p);
+        ast_dfa_print(ad);
 }
