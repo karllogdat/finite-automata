@@ -2,9 +2,11 @@
 #define SET_H
 
 #include "hash_table.h"
+#include <stdlib.h>
 
 struct set {
         struct hash_table *elements;
+        size_t size;
 };
 
 /**
